@@ -1,5 +1,6 @@
 // Code to create a server using Oak framework with deno and handle requests from the frontend
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+import { CorsOptions, oakCors } from "https://deno.land/x/cors/mod.ts";
 import { RateLimiter } from "https://deno.land/x/oak_rate_limit/mod.ts";
 import { generateLLMResponse } from "./modules/langchainHandler.ts";
 import { CharacterResponse, UserComment } from "./types/index.d.ts";
@@ -14,6 +15,15 @@ const rateLimit = RateLimiter({
 
 // make sure to initialize middlewares before the router
 app.use(await rateLimit);
+
+// set up oakCors
+const corsOptions: CorsOptions = {
+  origin: ["http://localhost:5173", "https://macaron-web-frontend.vercel.app"],
+  methods: ["GET", "POST"],
+  optionsSuccessStatus: 200,
+};
+
+app.use(oakCors(corsOptions));
 
 const router = new Router();
 router
