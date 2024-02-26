@@ -7,7 +7,7 @@ import {
 import { StringOutputParser } from "npm:@langchain/core/output_parsers";
 import { convertCSVToQuestionAnswers } from "./csvParser.ts";
 import { containsKanji } from "./characterChecker.ts";
-import { QuestionAnswer } from "../types/index.d.ts";
+import type { QuestionAnswer } from "../types/index.d.ts";
 
 // Create reusable objects
 const model = new ChatOpenAI({

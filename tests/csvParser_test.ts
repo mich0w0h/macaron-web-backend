@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std/assert/assert_equals.ts";
 import { convertCSVToQuestionAnswers } from "../modules/csvParser.ts";
-import { QuestionAnswer } from "../types/index.d.ts";
+import type { QuestionAnswer } from "../types/index.d.ts";
 
 Deno.test(
   "convertCSVToQuestionAnswers should return an array of QuestionAnswer objects",

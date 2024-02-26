@@ -1,5 +1,5 @@
 import { parse } from "https://deno.land/std@0.207.0/csv/mod.ts";
-import { QuestionAnswer } from "../types/index.d.ts";
+import type { QuestionAnswer } from "../types/index.d.ts";
 
 /**
  * This function converts a CSV file into an array of QuestionAnswer objects.
