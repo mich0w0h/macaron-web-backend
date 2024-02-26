@@ -1,26 +1,50 @@
-import { parse } from "https://deno.land/std@0.107.0/encoding/csv.ts";
+import { parse } from "https://deno.land/std@0.207.0/csv/mod.ts";
+import { QuestionAnswer } from "../types/index.d.ts";
 
 /**
- * Reads a CSV file and converts it into a one-dimensional array of strings.
+ * This function converts a CSV file into an array of QuestionAnswer objects.
  *
- * This function reads a CSV file from the specified file path, parses it into
- * an array of arrays of strings, then flattens this into a one-dimensional array.
- * Any empty cells in the CSV file are excluded from the resulting array.
+ * @param csvPath - The path to the CSV file. The CSV file should have two columns: "質問" and "回答".
  *
- * @param filePath - The path to the CSV file to read.
+ * @returns A Promise that resolves to an array of QuestionAnswer objects. Each object has a "question" property and an "answer" property.
  *
- * @returns A Promise that resolves to a one-dimensional array of strings
- * representing the cells in the CSV file, excluding any empty cells.
+ * @example
+ *
+ * convertCSVToQuestionAnswers('path/to/file.csv')
+ * .then(data => console.log(data))
+ * .catch(err => console.error(err));
+ *
+ * The CSV file should be in the following format:
+ * 質問,回答
+ * "What is your name?","My name is John."
+ * "Where do you live?","I live in New York."
+ *
+ * The output will be:
+ * [
+ *   { question: "What is your name?", answer: "My name is John." },
+ *   { question: "Where do you live?", answer: "I live in New York." }
+ * ]
  */
-export async function csvToFlatArray(filePath: string): Promise<string[]> {
-  const csvContent = await Deno.readTextFile(filePath);
-  const parsedArray = (await parse(csvContent, {
-    skipFirstRow: false, // Change this to true if your CSV has a header row
-    separator: ",", // Change this if your CSV uses a different separator
-  })) as string[][];
+export async function convertCSVToQuestionAnswers(
+  csvPath: string
+): Promise<QuestionAnswer[]> {
+  const text = await Deno.readTextFile(csvPath);
 
-  // Flatten the array and filter out empty cells
-  const flatArray = parsedArray.flat().filter((cell: string) => cell !== "");
+  if (text.trim() === "") {
+    return [];
+  }
 
-  return flatArray;
+  const csvData = parse(text, {
+    columns: ["questions", "answers"],
+    skipFirstRow: true,
+  });
+
+  const data: QuestionAnswer[] = csvData.map((row: Record<string, string>) => {
+    return {
+      question: row["questions"],
+      answer: row["answers"],
+    };
+  });
+
+  return data;
 }

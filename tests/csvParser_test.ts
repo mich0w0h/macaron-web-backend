@@ -1,19 +1,31 @@
-import { assertEquals } from "https://deno.land/std@0.107.0/testing/asserts.ts";
-import { csvToFlatArray } from "../src/modules/csvParser.ts";
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { convertCSVToQuestionAnswers } from "../modules/csvParser.ts";
+import { QuestionAnswer } from "../types/index.d.ts";
 
-Deno.test("csvToFlatArray should return an array", async () => {
-  const result = await csvToFlatArray("./data/test.csv");
-  assertEquals(Array.isArray(result), true);
-});
+Deno.test(
+  "convertCSVToQuestionAnswers should return an array of QuestionAnswer objects",
+  async () => {
+    const csvPath = "./data/test.csv"; // replace with the path to your test CSV file
+    const expected: QuestionAnswer[] = [
+      { question: "test question 1", answer: "test answer 1" },
+      { question: "test question 2", answer: "test answer 2" },
+      // add more expected results as needed
+    ];
 
-Deno.test("csvToFlatArray should return a one-dimensional array", async () => {
-  const result = await csvToFlatArray("./data/test.csv");
-  const isOneDimensional = result.every((item) => typeof item === "string");
-  assertEquals(isOneDimensional, true);
-});
+    const result = await convertCSVToQuestionAnswers(csvPath);
 
-Deno.test("csvToFlatArray should exclude empty cells", async () => {
-  const result = await csvToFlatArray("./data/test.csv");
-  const hasEmptyCells = result.some((cell) => cell === "");
-  assertEquals(hasEmptyCells, false);
-});
+    assertEquals(result, expected);
+  }
+);
+
+Deno.test(
+  "convertCSVToQuestionAnswers should handle an empty CSV file",
+  async () => {
+    const csvPath = "./data/empty.csv"; // replace with the path to an empty CSV file
+    const expected: QuestionAnswer[] = [];
+
+    const result = await convertCSVToQuestionAnswers(csvPath);
+
+    assertEquals(result, expected);
+  }
+);

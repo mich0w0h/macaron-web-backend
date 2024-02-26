@@ -5,9 +5,11 @@ import {
   PromptTemplate,
 } from "npm:@langchain/core/prompts";
 import { StringOutputParser } from "npm:@langchain/core/output_parsers";
-import { csvToFlatArray } from "./csvParser.ts";
+import { convertCSVToQuestionAnswers } from "./csvParser.ts";
 import { containsKanji } from "./characterChecker.ts";
+import { QuestionAnswer } from "../types/index.d.ts";
 
+// Create reusable objects
 const model = new ChatOpenAI({
   modelName: "gpt-3.5-turbo",
   maxTokens: 50,
@@ -15,30 +17,21 @@ const model = new ChatOpenAI({
 
 const outputParser = new StringOutputParser();
 
-const characterLines = await csvToFlatArray("./data/line_examples.csv");
+const characterQuestionAnswers = await convertCSVToQuestionAnswers(
+  "./data/line_examples.csv"
+);
 
-function createPromptFromLines(
-  characterLines: string[],
+function createFewShotTemplate(
+  examples: QuestionAnswer[],
+  prefix: string
 ): FewShotPromptTemplate {
-  const examples = characterLines.map((line) => {
-    return { "answer": line }; // answer is the label for the example
-  });
-
   const examplePrompt = new PromptTemplate({
-    template: "{answer}",
-    inputVariables: ["answer"],
+    template: "質問: {question}\n{answer}",
+    inputVariables: ["question", "answer"],
   });
+  const suffix = "質問： {commentText}";
 
-  const prefix =
-    `ユーザーの入力に対し、マカロンというキャラクターの返答を生成してください。
-マカロンは世間知らずなキャラクターで、一人称は「マカロン」です。
-返答は10文字以内で作成してください。話し方の例はこんな感じです：`;
-  const suffix = `
-ユーザー： {commentText}
-マカロン：
-`;
-
-  const fewShotPrompt = new FewShotPromptTemplate({
+  const fewShotTemplate = new FewShotPromptTemplate({
     examples,
     examplePrompt,
     prefix: prefix,
@@ -46,25 +39,25 @@ function createPromptFromLines(
     inputVariables: ["commentText"],
   });
 
-  return fewShotPrompt;
+  return fewShotTemplate;
 }
 
 function createPromptToConvertKanji(): FewShotPromptTemplate {
   const examples = [
-    { "input": "私は猫が好きです。", "output": "わたしはねこがすきです。" },
+    { input: "私は猫が好きです。", output: "わたしはねこがすきです。" },
     {
-      "input": "私はお金が欲しいです。",
-      "output": "わたしはおかねがほしいです。",
+      input: "私はお金が欲しいです。",
+      output: "わたしはおかねがほしいです。",
     },
     // カタカナはそのままにする
     {
-      "input": "私はスイカが好きです。",
-      "output": "わたしはスイカがすきです。",
+      input: "私はスイカが好きです。",
+      output: "わたしはスイカがすきです。",
     },
-    { "input": "名前はマカロンだよ！", "output": "なまえはマカロンだよ！" },
+    { input: "名前はマカロンだよ！", output: "なまえはマカロンだよ！" },
     {
-      "input": "マカロンの誕生日はいつだ！",
-      "output": "マカロンのたんじょうびはいつだ！",
+      input: "マカロンの誕生日はいつだ！",
+      output: "マカロンのたんじょうびはいつだ！",
     },
   ];
 
@@ -87,10 +80,10 @@ function createPromptToConvertKanji(): FewShotPromptTemplate {
 
 async function invokeFewShot(
   promptTemplate: FewShotPromptTemplate,
-  chainInput: RunInput,
+  chainInput: RunInput
 ): Promise<string> {
   const chain = promptTemplate.pipe(model).pipe(outputParser);
-  const stringResult = await chain.invoke(chainInput) as string;
+  const stringResult = (await chain.invoke(chainInput)) as string;
 
   console.log("[LangChain] response generated: ", stringResult);
 
@@ -98,9 +91,16 @@ async function invokeFewShot(
 }
 
 export async function generateLLMResponse(
-  commentText: string,
+  commentText: string
 ): Promise<string> {
-  const promptTemplate = createPromptFromLines(characterLines);
+  const prefix = `入力された質問に対し、マカロンというキャラクターの返答を生成してください。
+  マカロンは世間知らずなキャラクターで、一人称は「マカロン」です。
+  返答は10文字以内で作成してください。話し方の例はこんな感じです：`;
+
+  const promptTemplate = createFewShotTemplate(
+    characterQuestionAnswers,
+    prefix
+  );
 
   let stringResult: string = await invokeFewShot(promptTemplate, {
     commentText: commentText,

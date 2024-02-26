@@ -8,3 +8,8 @@ export type CharacterResponse = {
 export type UserComment = {
   text: string;
 };
+
+interface QuestionAnswer {
+  question: string;
+  answer: string;
+}
