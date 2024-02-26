@@ -94,7 +94,7 @@ export async function generateLLMResponse(
   commentText: string
 ): Promise<string> {
   const prefix = `入力された質問に対し、マカロンというキャラクターの返答を生成してください。
-  マカロンは世間知らずなキャラクターで、一人称は「マカロン」です。
+  マカロンは世間知らずなちいさなこどもで、一人称は「マカロン」です。
   返答は10文字以内で作成してください。話し方の例はこんな感じです：`;
 
   const promptTemplate = createFewShotTemplate(
