@@ -20,3 +20,11 @@ This directory contains the backend code for the Macaron web app.
 
 - Deno: Latest version
 - Other dependencies as per the backend codebase.
+
+## Environment Variables
+
+This application requires the following environment variables to be set:
+
+- `OPENAI_API_KEY`: This is the API key for OpenAI. You can obtain it from the OpenAI dashboard.
+
+Please ensure these environment variables are set before running the application.
