@@ -7,7 +7,6 @@ import {
 import { StringOutputParser } from "npm:@langchain/core/output_parsers";
 import { convertCSVToQuestionAnswers } from "./csvParser.ts";
 import { containsKanji } from "./characterChecker.ts";
-import type { QuestionAnswer } from "../types/index.d.ts";
 
 // Create reusable objects
 const model = new ChatOpenAI({
@@ -22,7 +21,7 @@ const characterQuestionAnswers = await convertCSVToQuestionAnswers(
 );
 
 function createFewShotTemplate(
-  examples: QuestionAnswer[],
+  examples: { question: string; answer: string }[],
   prefix: string
 ): FewShotPromptTemplate {
   const examplePrompt = new PromptTemplate({
