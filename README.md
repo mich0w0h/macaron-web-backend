@@ -1,6 +1,10 @@
-# Backend
+# macaron-web-backend
 
-This directory contains the backend code for the Macaron web app.
+This is the backend code for the Macaron web app.
+
+Ready for a treat? 🍬 [Play with the app here](https://macaron-web.vercel.app/) and have fun! 🎉
+
+For more information about this project, check out this [blog post](https://mich0w0h.hatenablog.com/entry/2024/02/27/120204).
 
 ## Setup
 
